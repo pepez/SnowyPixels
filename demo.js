@@ -61,8 +61,16 @@ function Demo() {
 	}
 
     function populateTops() {
-    	for (var i=0; i < canvas_width; i++) {
-    		tops.push(canvas_height-10);
+		var data = copyCtx.getImageData(0,0,canvas_width, canvas_height);
+     
+    	for (var x=0; x < canvas_width; x++) {
+			var top = canvas_height-10;    		
+	    	for (var y=canvas_height; y > 0; y--) {
+	    		if (pixelData(data, x, y) > 0) {
+	    			top = y;
+	    		}
+    		}
+    		tops.push(top);
 	    }
     }
     
@@ -88,15 +96,20 @@ function Demo() {
     }
     
     function pixelData(data,x,y) {
-	    var pos = (y*canvas_width + x);
-    	var r = data[pos];
+	    var pos = 4*(y*canvas_width + x);
+    	var r = data.data[pos];
     	return r;
     }
 	
 
     this.startDemo = function() {
     	ctx.fillStyle = "#FAFAFF";  
+
+    	copyCtx.fillStyle = "#CC2222"; 
+    	copyCtx.font = 'bold 50px sans-serif';
+    	copyCtx.fillText("Merry xmas!", 100, 200);  
     	copyCtx.fillStyle = "#FAFAFF"; 
+	
     	populateTops(); 
 		demoStep();
     }
