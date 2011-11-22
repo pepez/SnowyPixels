@@ -2,6 +2,7 @@ function Demo() {
 	var MAX_FLAKES = 500;
 	var flakes = [];
 	var tops = [];
+	var textTops = [];
 
 	var canvas = document.getElementById('demoCanvas');
 	var ctx = canvas.getContext('2d');
@@ -21,18 +22,23 @@ function Demo() {
 
     function updateFlakes() {
 		for (var i=0; i < flakes.length; i++) {
-		// if hits the ground, then paint to background and reuse 
+		// if hits the ground or text, then paint to background and reuse 
 			var flake = flakes[i];
-			if  ((flake.y + flake.speed) > tops[Math.floor(flake.x)]) {
-				var nudge = checkAngle(Math.floor(flake.x));			
+			var topArray = textTops;
+			if (flake.ground) {
+				topArray = tops;
+			}
+			
+			if  ((flake.y + flake.speed) > topArray[Math.floor(flake.x)] && (flake.y + flake.speed) < (topArray[Math.floor(flake.x)]+10)) {
+				var nudge = checkAngle(Math.floor(flake.x), topArray);			
 				if (nudge != 0) {
 					flake.x = Math.floor(flake.x) + nudge;
 				} 
-				tops[Math.floor(flake.x)] = tops[Math.floor(flake.x)] - 1;
-				copyCtx.fillRect(Math.floor(flake.x), tops[Math.floor(flake.x)],1,1); 
-				flake.y = 0;
-				flake.x = Math.floor(Math.random()*canvas_width);
-				flake.ttl = 0;
+				topArray[Math.floor(flake.x)] = topArray[Math.floor(flake.x)] - 1;
+				copyCtx.fillRect(Math.floor(flake.x), topArray[Math.floor(flake.x)],1,1); 
+				initFlake(flake);
+			} else if (flake.y > canvas_height) {
+				initFlake(flake);
 			} else {
 				flake.x += Math.sin((flake.ttl/200.0)*(1-flake.speed));
 				flake.y = flake.y + flake.speed;
@@ -41,14 +47,23 @@ function Demo() {
 		}  
     }
     
+    function initFlake(flake) {
+    	flake.y = 0;
+		flake.x = Math.floor(Math.random()*canvas_width);
+		flake.ttl = 0;
+    }
     
     function spawnFlakes() {
     	if (Math.random() > 0.8) {
     		var flake = {};
-    		flake.y = 0;
-    		flake.x = Math.floor(Math.random()*canvas_width);
+    		initFlake(flake);
     		flake.speed = 0.5+(Math.random()*1);
-    		flake.ttl = 0;
+    
+    		if (Math.random() > 0.2) {
+	    		flake.ground = true;
+    		} else {
+	    		flake.ground = false;
+    		}
     		flakes.push(flake);
     	}
     }
@@ -61,24 +76,31 @@ function Demo() {
 	}
 
     function populateTops() {
+    	for (var x=0; x < canvas_width; x++) {
+    		tops.push(canvas_height);
+	    }
+    }
+
+
+    function populateTextTops() {
 		var data = copyCtx.getImageData(0,0,canvas_width, canvas_height);
      
     	for (var x=0; x < canvas_width; x++) {
-			var top = canvas_height-10;    		
+			var top = canvas_height; 
 	    	for (var y=canvas_height; y > 0; y--) {
 	    		if (pixelData(data, x, y) > 0) {
 	    			top = y;
 	    		}
     		}
-    		tops.push(top);
+    		textTops.push(top);
 	    }
     }
     
-    function checkAngle(x) {
+    function checkAngle(x, topArray) {
     	if (x > 0 && x < canvas_width) {
-    		var left = tops[x-1];
-    		var right = tops[x+1];
-    		var current = tops[x];
+    		var left = topArray[x-1];
+    		var right = topArray[x+1];
+    		var current = topArray[x];
     		
     		// lower than neighbours or level - lower has greater value 
     		if (current >= left && current >= right) {
@@ -107,9 +129,10 @@ function Demo() {
 
     	copyCtx.fillStyle = "#CC2222"; 
     	copyCtx.font = 'bold 50px sans-serif';
-    	copyCtx.fillText("Merry xmas!", 100, 200);  
+    	copyCtx.fillText("Season's Greetings!", 60, 200);  
     	copyCtx.fillStyle = "#FAFAFF"; 
 	
+    	populateTextTops(); 
     	populateTops(); 
 		demoStep();
     }
