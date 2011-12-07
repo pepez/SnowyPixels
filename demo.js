@@ -86,7 +86,7 @@ function Demo() {
 		var data = copyCtx.getImageData(0,0,canvas_width, canvas_height);
      
     	for (var x=0; x < canvas_width; x++) {
-			var top = canvas_height; 
+			var top = 700; // hack to prevent spikes
 	    	for (var y=canvas_height; y > 0; y--) {
 	    		if (pixelData(data, x, y) > 0) {
 	    			top = y;
@@ -124,13 +124,26 @@ function Demo() {
     }
 	
 
-    this.startDemo = function() {
-    	ctx.fillStyle = "#FAFAFF";  
+	function getURLParameter(name) {
+		//http://stackoverflow.com/questions/831030/how-to-get-get-variables-from-request-in-javascript
+	   if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))
+	      return decodeURIComponent(name[1]);
+	}
 
+    this.startDemo = function() {
+		copyCtx.textAlign = "center";
     	copyCtx.fillStyle = "#CC2222"; 
-    	copyCtx.font = 'bold 50px sans-serif';
-    	copyCtx.fillText("Season's Greetings!", 60, 200);  
+    	copyCtx.font = '50px serif';
+    	
+    	var text = getURLParameter("greeting");
+    	if (!text) {
+    		text = "Merry Christmas!";
+    	}
+    	
+    	copyCtx.fillText(text, 300, 200);  
+
     	copyCtx.fillStyle = "#FAFAFF"; 
+    	ctx.fillStyle = "#FAFAFF";  
 	
     	populateTextTops(); 
     	populateTops(); 

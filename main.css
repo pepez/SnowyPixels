@@ -1,6 +1,6 @@
 
 body {
-	background: #000000;
+	background: #dde5ef;
 }
 
 * { 
@@ -16,11 +16,13 @@ a {
 }
 
 #container {
-  width: 600px ;
-  margin-left: auto;
-  margin-right: auto;
+  position:relative;
+  margin:0 auto;
+  width: 600px;
 }
 
 #demoCanvas {
-  border: 1px solid;
+  background: #00002f;
+  border: 1px solid #ffffff;
 }
+
